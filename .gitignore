@@ -1,0 +1,4 @@
+/vendor
+/composer.phar
+/magmi/conf/magmi.ini
+/data

@@ -1,0 +1,4 @@
+title:MAGMI by dweeves - version:0.7.20
+startup:Running Magmi Product Import Engine v1.8.2 by dweeves
+error:1:SQLSTATE[28000] [1045] Access denied for user '<<YOUR USERNAME>>'@'localhost' (using password: YES) - 
+end:Import Ended

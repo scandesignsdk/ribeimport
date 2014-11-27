@@ -1,0 +1,13 @@
+{
+    "autoload": {
+        "psr-4": {
+            "Ribe\\Import\\": "src"
+        }
+    },
+    "require": {
+        "lsv/magmi-datapump": "dev-master",
+        "symfony/finder": "~2.5",
+        "symfony/filesystem": "~2.5",
+        "monolog/monolog": "~1.0"
+    }
+}
