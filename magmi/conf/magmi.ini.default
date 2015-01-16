@@ -13,5 +13,5 @@ basedir = "../../.."
 [GLOBAL]
 step = "0.5"
 multiselect_sep = ","
-dirmask = "755"
-filemask = "644"
+dirmask = "777"
+filemask = "777"

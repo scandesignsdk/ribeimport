@@ -6,22 +6,22 @@
 class Settings
 {
 
-    public $debug = false;
+    public $debug = true;
 
-    public $magento_rootdir = '/../';
+    private $magento_rootdir = '/../';
 
-    public $magmi_dir = '/magmi/';
+    private $magmi_dir = '/magmi/';
 
-    public $files_dir = array(
-        'csvfiles' => '/data/',
-        'csv_backup' => '/data/imported/',
+    private $files_dir = array(
+        'csvfiles' => '/example/',
+        'csv_backup' => '/example/imported/',
     );
 
     public $csv = array(
         'hasHeaders' => true,
-        'demiliter' => ';',
+        'demiliter' => ',',
         'enclosure' => '"',
-        'headers' => array('type', 'related', 'sku', 'name', 'variantlist', 'farve', 'str', 'tmp', 'short_description', 'long_description', 'weight', 'price', 'special_price', 'category', 'tmp')
+        'headers' => array('type', 'related', 'sku', 'name', 'variantlist', 'farve', 'str', 'tmp', 'short_description', 'long_description', 'weight', 'price', 'special_price', 'category')
     );
 
     /**

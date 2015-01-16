@@ -68,6 +68,7 @@ class Import
         $this->itemHolder = $itemHolder;
         $this->settings = $settings;
         $this->logger = new Logger('ribe');
+        $this->debug = $this->settings->debug;
     }
 
     public function import(OutputInterface $output)
@@ -106,14 +107,7 @@ class Import
 
     private function createSimpleProduct(array $data)
     {
-        $simpleData = new RequiredData();
-        $simpleData
-            ->setSku($data['sku'])
-            ->setName($data['name'])
-            ->setDescription($data['long_description'])
-            ->setShortDescription($data['short_description'])
-            ->setWeight($data['weight'])
-            ->setPrice($this->convertPrice($data['price']))
+        $simpleData = $this->getData($data)
             ->setTax('Taxable Goods')
             ->setQty(9999, true)
         ;
@@ -128,30 +122,39 @@ class Import
             /** @var Configurable $configProduct */
             $configProduct = $this->configurableProducts[$data['related']];
             $configProduct->addSimpleProduct($simpleProduct);
-            $this->logger->log('debug', 'Simple product SKU ' . $data['sku'] . ' ready to import');
+            $this->output->writeln('<info>Ready to import: Simple product SKU ' . $data['sku'] . '</info>');
         } else {
-            $this->logger->log('alert', 'Related configurable SKU ' . $data['related'] . ' was not found');
+            $this->output->writeln('<error>NOT READY: Related configurable SKU ' . $data['related'] . ' was not found</error>');
         }
     }
 
     private function createConfigurableProduct(array $data)
     {
-        $configdata = new RequiredData();
-        $configdata
+        $configdata = $this->getData($data);
+        $configProduct = new Configurable($configdata, $this->getVariants($data));
+        $configProduct->injectData($this->getCategories($data));
+        $this->configurableProducts[$configdata->getSku()] = $configProduct;
+
+        $this->output->writeln('<info>Ready to import: Configurable SKU ' . $data['sku'] . '</info>');
+    }
+
+    /**
+     * @param array $data
+     * @return RequiredData
+     */
+    private function getData(array $data)
+    {
+        $d = new RequiredData();
+        $d
             ->setName($data['name'])
             ->setSku($data['sku'])
             ->setDescription($data['long_description'])
             ->setShortDescription($data['short_description'])
             ->setQty(9999, true)
             ->setPrice($this->convertPrice($data['price']))
+            ->setWeight($data['weight'])
         ;
-
-        $configProduct = new Configurable($configdata, $this->getVariants($data));
-        $configProduct->injectData($this->getCategories($data));
-
-        $this->configurableProducts[$configdata->getSku()] = $configProduct;
-
-        $this->logger->log('debug', 'Configurable SKU ' . $data['sku'] . ' ready to import');
+        return $d;
     }
 
     /**
@@ -161,8 +164,8 @@ class Import
     private function getCategories(array $data)
     {
         $categories = array();
-        if (strpos($data['category'], ',') !== false) {
-            $categories = explode(',', $data['category']);
+        if (strpos($data['category'], '|') !== false) {
+            $categories = explode('|', $data['category']);
         } else {
             $categories[] = $data['category'];
         }
@@ -194,7 +197,8 @@ class Import
         } else {
             $variants[] = $data['variantlist'];
         }
-        return array_map($variants, 'trim');
+
+        return array_map('trim', $variants);
     }
 
     private function doImport()
@@ -212,7 +216,7 @@ class Import
     private function getDataFiles()
     {
         $finder = clone $this->finder;
-        $files = $finder->files()->in($this->csvFileDir)->depth(0)->name('*.csv');
+        $files = $finder->files()->in($this->settings->getDir('csvfiles'))->depth(0)->name('*.csv');
         return $files;
     }
 
